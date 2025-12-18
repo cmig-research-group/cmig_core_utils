@@ -31,6 +31,9 @@ for im in image_datasets:
         im.PatientBirthDate = None
     if not hasattr(im, 'AccessionNumber'):
         im.AccessionNumber = '69'
+instance_numbers = [im.InstanceNumber for im in image_datasets]
+inds = sorted(range(len(instance_numbers)), key=lambda k: instance_numbers[k])
+image_datasets = [image_datasets[k] for k in inds]
 
 
 # DICOM SEG requirements --------------------------------------------------------

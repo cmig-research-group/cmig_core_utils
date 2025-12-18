@@ -111,7 +111,7 @@ for i = 1:total_files
       metadata.BitsAllocated = 8;
       metadata.BitsStored = 8;
       metadata.HighBit = 7;
-      if multiframe_flag || enhanced_flag
+      if (multiframe_flag | enhanced_flag) & ~rgb_flag
 	dat = reshape(dat, [rows, cols, frames, slices]);
 	dicomwrite( uint8( permute(dat, [2 1 3 4]) ), fname_out, metadata, 'CreateMode', 'copy', 'MultiframeSingleFile', 'true' );
       elseif ~rgb_flag
@@ -123,7 +123,7 @@ for i = 1:total_files
       metadata.BitsAllocated = 16;
       metadata.BitsStored = 16;
       metadata.HighBit = 15;
-      if multiframe_flag || enhanced_flag
+      if (multiframe_flag | enhanced_flag) & ~rgb_flag
 	dat = reshape(dat, [rows, cols, frames, slices]);
 	dicomwrite( uint16( permute(dat, [2 1 3 4]) ), fname_out, metadata, 'CreateMode', 'copy', 'MultiframeSingleFile', 'true' );
       elseif ~rgb_flag
@@ -135,7 +135,7 @@ for i = 1:total_files
       metadata.BitsAllocated = 16;
       metadata.BitsStored = 16;
       metadata.HighBit = 15;
-      if multiframe_flag || enhanced_flag
+      if (multiframe_flag | enhanced_flag) & ~rgb_flag
 	dat = reshape(dat, [rows, cols, frames, slices]);
 	dicomwrite( uint16( permute(dat, [2 1 3 4]) ), fname_out, metadata, 'CreateMode', 'copy', 'MultiframeSingleFile', 'true' );
       elseif ~rgb_flag

@@ -3,6 +3,12 @@ function ds = OAR_RS_AddContour(ds, dcminfo, segSTRUCT)
 % get colors for the different ROI's 
 ROIcolors = OAR_RS_getROIColors(segSTRUCT); 
 
+% Check for enhanced DICOMs
+enhanced_flag = 0;
+if isfield(dcminfo{1}, 'PerFrameFunctionalGroupsSequence')
+  enhanced_flag = 1;
+end
+
 for id1 = 1:numel(segSTRUCT)
 	tempVol.master_seg = squeeze(segSTRUCT(id1).seg); 
 	
@@ -22,11 +28,18 @@ for id1 = 1:numel(segSTRUCT)
 		
 		% get contours from bwboundaries 
 		tempSlice.bw = bwboundaries(tempSlice.im, 'noholes'); 	
-		
+
 		% generate the M matrix 
-		tempSlice.IOP = dcminfo{id2}.ImageOrientationPatient; 
-		tempSlice.IPP = dcminfo{id2}.ImagePositionPatient;
-		tempSlice.PS = dcminfo{id2}.PixelSpacing; 
+		if ~enhanced_flag
+		  tempSlice.IOP = dcminfo{id2}.ImageOrientationPatient; 
+		  tempSlice.IPP = dcminfo{id2}.ImagePositionPatient;
+		  tempSlice.PS = dcminfo{id2}.PixelSpacing; 
+		else
+		  item_str = sprintf('Item_%d', id2);
+		  tempSlice.IOP = dcminfo{1}.PerFrameFunctionalGroupsSequence.(item_str).PlaneOrientationSequence.Item_1.ImageOrientationPatient;
+		  tempSlice.IPP = dcminfo{1}.PerFrameFunctionalGroupsSequence.(item_str).PlanePositionSequence.Item_1.ImagePositionPatient;
+		  tempSlice.PS = dcminfo{1}.PerFrameFunctionalGroupsSequence.(item_str).PixelMeasuresSequence.Item_1.PixelSpacing;
+		end
 		tempSlice.M = zeros(4,4); 
 		tempSlice.M(1:3,1) = tempSlice.IOP(1:3)*tempSlice.PS(1); 
 		tempSlice.M(1:3,2) = tempSlice.IOP(4:6)*tempSlice.PS(2); 
@@ -42,7 +55,11 @@ for id1 = 1:numel(segSTRUCT)
 		
 			% contour image sequence 
 			contour_image_sequence(1).ReferencedSOPClassUID = '1.2.840.10008.5.1.4.1.1.2';
-			contour_image_sequence(1).ReferencedSOPInstanceUID = dcminfo{id2}.SOPInstanceUID; 
+			if ~enhanced_flag
+			  contour_image_sequence(1).ReferencedSOPInstanceUID = dcminfo{id2}.SOPInstanceUID; 
+			else
+			  contour_image_sequence(1).ReferencedSOPInstanceUID = dcminfo{1}.SOPInstanceUID;
+			end
 			contour_image_sequence = OAR_RS_sequence(contour_image_sequence); 
 
 			% contour data 
