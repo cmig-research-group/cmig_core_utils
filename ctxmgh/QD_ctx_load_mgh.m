@@ -13,4 +13,4 @@ function vol_ctx = QD_ctx_load_mgh(fname);
 
 
 [vol, M] = QD_load_mgh(fname);
-vol_ctx = QD_mgh2ctx(vol,M);
+vol_ctx = mgh2ctx(vol,M);

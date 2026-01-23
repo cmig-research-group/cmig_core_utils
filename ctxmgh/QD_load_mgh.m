@@ -1,5 +1,5 @@
 function [vol, M, mr_parms, volsz] = QD_load_mgh(fname,slices,frames,headeronly,keepsingle)
-% [vol, M, mr_parms, volsz] = fs_load_mgh(fname,[slices],[frames],[headeronly],[keepsingle])
+% [vol, M, mr_parms, volsz] = QD_load_mgh(fname,[slices],[frames],[headeronly],[keepsingle])
 %
 % Required Input:
 %   fname: path of the mgh file

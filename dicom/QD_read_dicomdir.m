@@ -15,6 +15,6 @@ nfiles = length(fnames);
 
 [vol, M, dcminfo] = QD_read_dicomvol(fnames);
 
-ctx = ctx_mgh2ctx(vol, M);
+ctx = mgh2ctx(vol, M);
 
 end

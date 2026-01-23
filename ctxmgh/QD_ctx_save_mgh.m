@@ -10,5 +10,5 @@ function QD_ctx_save_mgh(vol_ctx,fname)
 % created 1/7/2011 by N White
 
 
-[vol M] = QD_ctx2mgh(vol_ctx);
+[vol M] = ctx2mgh(vol_ctx);
 QD_save_mgh(vol,fname,M);
