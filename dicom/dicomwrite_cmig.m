@@ -20,7 +20,9 @@ end
 
 multiframe_flag = 0; % Regular (not-enhanced) multiframe
 if isfield(dcm_hdr_struct, 'NumberOfFrames')
-  multiframe_flag = 1;
+  if dcm_hdr_struct.NumberOfFrames > 1
+    multiframe_flag = 1;
+  end
 end
 
 enhanced_flag = 0; % Enhanced DICOM (also multiframe)
@@ -75,8 +77,9 @@ for i = 1:total_files
   PixelSpacing = colvec(sqrt(sum(Mvxl2lph(:,[1 2]).^2)));
   ImageOrientationPatient = [dcr; dcc]; 
   ImagePositionPatient = Mvxl2lph(1:3,:)*[1 1 1 1]';
+
+  metadata.PixelSpacing = PixelSpacing;
   metadata.SliceThickness = slcthk;
-  metadata.SpacingBetweenSlices = slcthk;
   metadata.ImageOrientationPatient = ImageOrientationPatient;
   metadata.ImagePositionPatient = ImagePositionPatient + (slice_counter-1)*dcs*slcthk;
   metadata.SliceLocation = (slice_counter-1)*slcthk;

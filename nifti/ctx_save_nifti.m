@@ -13,8 +13,8 @@ info.TimeUnits = 'Second';
 info.Datatype = 'single';
 ctx_struct.imgs = single(ctx_struct.imgs);
 
-[rows, cols, slices, ~] = size(ctx_struct.imgs);
-info.ImageSize = [rows, cols, slices];
+[rows, cols, slices, frames] = size(ctx_struct.imgs);
+info.ImageSize = [rows, cols, slices, frames];
 info.SliceCode = 'Unknown';
 
 info.FrequencyDimension = 0;
@@ -42,7 +42,7 @@ info.Transform.T = M_RAS';
 pixdim_r = norm(M_RAS(:,1));
 pixdim_c = norm(M_RAS(:,2));
 pixdim_s = norm(M_RAS(:,3));
-info.PixelDimensions = [pixdim_r pixdim_c pixdim_s];
+info.PixelDimensions = [pixdim_r pixdim_c pixdim_s 1];
 
 gz_flag = ~isempty(regexpi(fname, 'gz'));
 [filepath, name, ext] = fileparts(fname);

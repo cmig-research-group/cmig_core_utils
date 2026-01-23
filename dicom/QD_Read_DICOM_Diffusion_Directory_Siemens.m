@@ -90,7 +90,7 @@ nrows = double(dcminfo.Rows);
 ncols = double(dcminfo.Columns);
 ps = double(dcminfo.PixelSpacing);
 
-if isfield(dcminfo,'Private_0019_100a'); % Number of images in mosaic
+if isfield(dcminfo,'Private_0019_100a') % Number of images in mosaic
    mosaic_flag = true;
    nslices = double(dcminfo.Private_0019_100a(1));
    nreps = double(length(fnames));
