@@ -1,4 +1,4 @@
-function [vol, Mvxl2ras, qmat, bvals, gwinfo, info, inds_synth] = ReadDicomDiffusionDataPhilips(indir)
+function [vol, Mvxl2ras, qmat, bvals, gwinfo, dcminfo, inds_synth] = ReadDicomDiffusionDataPhilips(indir)
 
 file_list = recursive_dir(indir);
 ref_file = file_list{1};
@@ -17,9 +17,9 @@ if enhanced_flag % Enhanced DICOM ----------------------------------------------
   M_LPH = read_dicom_M(ref_file);
   Mvxl2ras = M_LPH_TO_RAS * M_LPH;
    
-  info = ref_info;
+  dcminfo = ref_info;
 
-  frames = info.NumberOfFrames;
+  frames = dcminfo.NumberOfFrames;
   posmat = NaN(frames, 9);
   bvals = NaN(frames, 1);
   qmat = NaN(frames, 3);
@@ -27,15 +27,15 @@ if enhanced_flag % Enhanced DICOM ----------------------------------------------
   for i = 1:frames
     item_str = sprintf('Item_%d', i);
 
-    ImagePositionPatient = info.PerFrameFunctionalGroupsSequence.(item_str).PlanePositionSequence.Item_1.ImagePositionPatient;
-    ImageOrientationPatient = info.PerFrameFunctionalGroupsSequence.(item_str).PlaneOrientationSequence.Item_1.ImageOrientationPatient;
+    ImagePositionPatient = dcminfo.PerFrameFunctionalGroupsSequence.(item_str).PlanePositionSequence.Item_1.ImagePositionPatient;
+    ImageOrientationPatient = dcminfo.PerFrameFunctionalGroupsSequence.(item_str).PlaneOrientationSequence.Item_1.ImageOrientationPatient;
     posmat(i,:) = cat(2, ImagePositionPatient', ImageOrientationPatient');
 
-    bval = info.PerFrameFunctionalGroupsSequence.(item_str).MRDiffusionSequence.Item_1.DiffusionBValue;
+    bval = dcminfo.PerFrameFunctionalGroupsSequence.(item_str).MRDiffusionSequence.Item_1.DiffusionBValue;
     bvals(i) = bval;
 
-    if isfield(info.PerFrameFunctionalGroupsSequence.(item_str).MRDiffusionSequence.Item_1, 'DiffusionGradientDirectionSequence')
-      qvec = info.PerFrameFunctionalGroupsSequence.(item_str).MRDiffusionSequence.Item_1.DiffusionGradientDirectionSequence.Item_1.DiffusionGradientOrientation';
+    if isfield(dcminfo.PerFrameFunctionalGroupsSequence.(item_str).MRDiffusionSequence.Item_1, 'DiffusionGradientDirectionSequence')
+      qvec = dcminfo.PerFrameFunctionalGroupsSequence.(item_str).MRDiffusionSequence.Item_1.DiffusionGradientDirectionSequence.Item_1.DiffusionGradientOrientation';
       qmat(i,:) = qvec;
     end
 
@@ -74,13 +74,13 @@ else % Classic DICOM -----------------------------------------------------------
     fname = char(file_list(i));
 
     try
-      info = dicominfo(fname);
-      instancenumber(iter) = info.InstanceNumber;
-      slicelocation(iter) = info.SliceLocation;
+      dcminfo = dicominfo(fname);
+      instancenumber(iter) = dcminfo.InstanceNumber;
+      slicelocation(iter) = dcminfo.SliceLocation;
 
-      bval = info.DiffusionBValue;
+      bval = dcminfo.DiffusionBValue;
       bvals = [bvals; bval];
-      qvec = info.DiffusionGradientOrientation';
+      qvec = dcminfo.DiffusionGradientOrientation';
       qmat = [qmat; qvec];
 
       fnames{iter} = fname;
@@ -93,7 +93,7 @@ else % Classic DICOM -----------------------------------------------------------
 
   end
 
-  info = ref_info; % Sometimes(?) the last file isn't a regular image file, so reset the dicominfo variable
+  dcminfo = ref_info; % Sometimes(?) the last file isn't a regular image file, so reset the dicominfo variable
 
   [instancenumber, sortindx] = sort(instancenumber);
   qmat = qmat(sortindx,:);
@@ -104,8 +104,8 @@ else % Classic DICOM -----------------------------------------------------------
   M_LPH = read_dicom_M(fnames);
   Mvxl2ras = M_LPH_TO_RAS * M_LPH;
 
-  nr = double(info.Rows);
-  nc = double(info.Columns);
+  nr = double(dcminfo.Rows);
+  nc = double(dcminfo.Columns);
   slices = length(unique(slicelocation));
   nframes = length(instancenumber) / slices;
 
@@ -135,8 +135,8 @@ end
 
 
 % Set q vector for b=0 volumes to 0, rather than NaN
-inds_b0 = bvals == 0;
-qmat(inds_b0,:) = [0 0 0];
+inds_b0 = (bvals == 0);
+qmat(inds_b0,:) = zeros(sum(inds_b0), size(qmat,2));
 
 % Check for synthesized volumes
 inds_b_nonzero = bvals > 0;
