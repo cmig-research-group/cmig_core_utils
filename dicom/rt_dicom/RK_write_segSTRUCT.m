@@ -3,7 +3,7 @@ function ds = RK_write_segSTRUCT(segSTRUCT,base_dicom, output_dir, SeriesDescrip
 
 % set defaults for SeriesNumber and SeriesDescription 
 if ~exist('SeriesNumber', 'var'); SeriesNumber = 5003; end
-if ~exist('SeriesDescription', 'var'); SeriesDescription = 'OAR Structure Set'; end
+if ~exist('SeriesDescription', 'var'); SeriesDescription = 'RT Structure Set'; end
 
 % create output_dir if it doesn't exist 
 if ~exist(output_dir, 'dir'); mkdir(output_dir); end
@@ -51,8 +51,10 @@ ds.InstanceCreationDate = datestr(now, 'yyyymmdd');
 ds.InstanceCreationTime = datestr(now, 'HHMMSS'); 
 ds.SOPClassUID = '1.2.840.10008.5.1.4.1.1.481.3';
 ds.SOPInstanceUID = uid.sop;
-ds.StudyDate = dcminfo{1}.StudyDate; 
-ds.StudyTime = dcminfo{1}.StudyTime; 
+ds.StudyDate = dcminfo{1}.StudyDate;
+if isfield(dcminfo{1}, 'StudyTime') 
+  ds.StudyTime = dcminfo{1}.StudyTime;
+end
 ds.AccessionNumber = '';
 ds.Modality = 'RTSTRUCT';
 ds.Manufacturer = 'Unspecified';
@@ -60,11 +62,11 @@ ds.ReferringPhysicianName = 'Unspecified';
 
 % Add patient / study identifiers
 ds.StationName = 'ro-ariadb-v';
-ds.StudyDescription = 'BRAIN';
+ds.StudyDescription = 'RT Contours';
 ds.SeriesDescription = SeriesDescription; ;
 ds.PhysiciansOfRecord = 'Unspecified';
 ds.OperatorsName = 'Unspecified';
-ds.ManufacturerModelName = 'ARIA RadOnc';
+ds.ManufacturerModelName = 'CMIG RT';
 ds.PatientName = dcminfo{1}.PatientName; 
 ds.PatientID = dcminfo{1}.PatientID;
 if isfield(dcminfo{1}, 'PatientBirthDate')
@@ -73,12 +75,17 @@ end
 if isfield(dcminfo{1}, 'PatientBirthTime')
 	ds.PatientBirthTime = dcminfo{1}.PatientBirthTime; 
 end
-ds.PatientSex = dcminfo{1}.PatientSex; 
+if isfield(dcminfo{1}, 'PatientSex')
+  ds.PatientSex = dcminfo{1}.PatientSex;
+end 
 ds.DeviceSerialNumber = '000000';
 ds.SoftwareVersions = '01.01.01';
 ds.StudyInstanceUID = dcminfo{1}.StudyInstanceUID; 
-ds.SeriesInstanceUID = uid.series; 
-ds.StudyID = dcminfo{1}.StudyID; 
+ds.SeriesInstanceUID = uid.series;
+ds.StudyID = '123456';
+if isfield(dcminfo{1}, 'StudyID')
+  ds.StudyID = dcminfo{1}.StudyID;
+end 
 ds.SeriesNumber = SeriesNumber;
 ds.InstanceNumber = 1;
 ds.StructureSetLabel = sprintf('OAR_%s', datestr(now, 'yyyymmdd')); 

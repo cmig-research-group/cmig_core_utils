@@ -34,8 +34,13 @@ end
 %       to the DICOM header that wasn't present in the other files)  
 posvec = NaN(length(fnames), 1);
 for fi = 1:length(fnames)
-  dcminfo(fi).fields = dicominfo(fnames{fi});
-  posvec(fi) = dcminfo(fi).fields.InstanceNumber;
+  header = dicominfo(fnames{fi});
+  if ~isfield(header, 'Manufacturer')
+    manufacturer = find_manufacturer(header);
+    header.Manufacturer = upper(manufacturer); % Generate tag for other functions, like gradwarp correction
+  end
+  dcminfo(fi).fields = header;
+  posvec(fi) = header.InstanceNumber;
 end
 [sv, si] = sort(posvec);
 fnames = fnames(si);

@@ -29,6 +29,9 @@ if enhanced_flag % Enhanced DICOM ----------------------------------------------
 
   for i = 1:totfiles
       dcminfo = dicominfo(file_list{i});
+      if ~isfield(dcminfo, 'Manufacturer')
+	dcminfo.Manufacturer = 'SIEMENS'; % Generate tag for other functions, like gradwarp correction
+      end
 
       bval = dcminfo.PerFrameFunctionalGroupsSequence.Item_1.MRDiffusionSequence.Item_1.DiffusionBValue;
       bvals(i) = bval;
@@ -65,6 +68,10 @@ else % Classic DICOM -----------------------------------------------------------
 
     try 
       dcminfo = dicominfo(fnametmp);
+      if ~isfield(dcminfo, 'Manufacturer')
+	dcminfo.Manufacturer = 'SIEMENS'; % Generate tag for other functions, like gradwarp correction
+      end
+
       instances(ii) = dcminfo.InstanceNumber;
       slicelocs(ii) = dcminfo.SliceLocation;
 
