@@ -140,11 +140,16 @@ qmat(inds_b0,:) = zeros(sum(inds_b0), size(qmat,2));
 
 % Check for synthesized volumes
 inds_b_nonzero = bvals > 0;
-inds_nan = isnan(qmat);
-inds_nan = sum(inds_nan, 2) == 3;
+inds_qnan = isnan(qmat);
+inds_qnan = sum(inds_qnan, 2) == 3;
 inds_q0 = qmat == 0;
 inds_q0 = sum(inds_q0, 2) == 3;
-inds_synth = inds_b_nonzero & (inds_nan | inds_q0);
+inds_synth = inds_b_nonzero & (inds_qnan | inds_q0);
+
+qmat_b_nonzero = qmat(inds_b_nonzero, :);
+if all(qmat_b_nonzero(:)==0) | all(isnan(qmat_b_nonzero(:))) % All non-zero b-vals are missing q vec info
+  inds_synth = zeros(size(inds_synth)); % If all volumes are missing q vec, assume averaged on scanner and q not provided; keep all volumes
+end 
 
 if any(inds_synth)
    fprintf('WARNING: DWI data contains synthesized volume(s)\n');
